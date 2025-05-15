@@ -3,13 +3,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Country
 from .serializers import CountrySerializer
-from django.db.models import Q
 import json
-from django.shortcuts import render, get_object_or_404
-import json
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
+
 
 class CountryViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
 
@@ -46,6 +49,8 @@ class CountryViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+
+
 @login_required
 def country_list_view(request):
     search = request.GET.get('search', '')
@@ -54,12 +59,16 @@ def country_list_view(request):
     else:
         countries = Country.objects.all()
 
-    # Convert JSON fields to Python lists/dicts for template usage
+    # No json.loads() needed if timezones and languages are JSONFields
     for c in countries:
-        c.timezones = json.loads(c.timezones)
-        c.languages = json.loads(c.languages)
+        if not c.timezones:
+            c.timezones = []
+        if not c.languages:
+            c.languages = {}
 
     return render(request, 'countries/country_list.html', {'countries': countries})
+
+
 
 @login_required
 def country_detail_view(request, pk):
@@ -84,3 +93,16 @@ def country_detail_view(request, pk):
         'same_region_countries': same_region_countries,
         'same_language_countries': same_language_countries,
     })
+
+
+
+def register_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Registration successful. You can now log in.")
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CountryViewSet
+from .views import *
 
 country_list = CountryViewSet.as_view({
     'get': 'list',
@@ -23,9 +23,11 @@ country_by_language = CountryViewSet.as_view({
 
 
 urlpatterns = [
-    path('', country_list, name='country-list'),
+    path('', country_list_view, name=''),
     path('countries/', country_list, name='country-list'),
-    path('countries/<int:pk>/', country_detail, name='country-detail'),
+    path('countries/<int:pk>/', country_detail, name='country_detail'),
     path('countries/<int:pk>/same_region/', country_same_region, name='country-same-region'),
     path('countries/by_language/', country_by_language, name='country-by-language'),
+
+
 ]

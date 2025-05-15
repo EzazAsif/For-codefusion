@@ -1,0 +1,101 @@
+{% load static humanize %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ country.name }} - Details</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="container mt-4">
+    <h1>{{ country.name }}</h1>
+
+    <div class="mb-4">
+      <img
+        src="{{ country.flag_url }}"
+        alt="{{ country.name }} flag"
+        style="height: 60px"
+      />
+    </div>
+
+    <table class="table table-bordered w-50">
+      <tbody>
+        <tr>
+          <th>CCA2</th>
+          <td>{{ country.cca2 }}</td>
+        </tr>
+        <tr>
+          <th>Capital</th>
+          <td>{{ country.capital }}</td>
+        </tr>
+        <tr>
+          <th>Population</th>
+          <td>{{ country.population|intcomma }}</td>
+        </tr>
+        <tr>
+          <th>Timezones</th>
+          <td>
+            {% for tz in country.timezones %} {{ tz }}{% if not forloop.last %},
+            {% endif %} {% endfor %}
+          </td>
+        </tr>
+        <tr>
+          <th>Region</th>
+          <td>{{ country.region }}</td>
+        </tr>
+        <tr>
+          <th>Languages</th>
+          <td>
+            {% for code, lang in country.languages.items %} {{ lang }} ({{ code
+            }}){% if not forloop.last %}, {% endif %} {% endfor %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Countries in the same region ({{ country.region }})</h3>
+    {% if same_region_countries %}
+    <ul>
+      {% for c in same_region_countries %}
+      <li>
+        <a href="{% url 'country_detail' c.id %}">{{ c.name }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No other countries in this region.</p>
+    {% endif %}
+
+    <h3>Countries sharing the same languages</h3>
+    {% if same_language_countries %}
+    <ul>
+      {% for c in same_language_countries %}
+      <li>
+        <a href="{% url 'country_detail' c.id %}">{{ c.name }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No countries share the same languages.</p>
+    {% endif %}
+
+    <a href="{% url 'country-list' %}" class="btn btn-secondary mt-3"
+      >Back to Country List</a
+    >
+    <form method="get" class="mb-3">
+      <input
+        type="text"
+        name="search"
+        placeholder="Search country by name"
+        value="{{ request.GET.search }}"
+        class="form-control w-50 d-inline-block"
+      />
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <form action="{% url 'logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit">Logout</button>
+    </form>
+  </body>
+</html>

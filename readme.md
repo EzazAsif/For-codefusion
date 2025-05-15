@@ -38,6 +38,10 @@ A Django application that fetches country data from [restcountries.com](https://
 ### Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/countryinfo.git
+git clone https://github.com/EzazAsif/For-codefusion.git
+cd For-codefusion
 cd countryinfo
+docker-compose up -d --build
+
+docker
 ```
